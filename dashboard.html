@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' 'unsafe-eval' data:; script-src * 'unsafe-inline' 'unsafe-eval'; style-src * 'unsafe-inline';">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>💊 PharmaRiskRadar ▌</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', sans-serif; background: #0b0b1a; color: #d1d5db; }
+  header { background: #12122a; padding: 1.5rem; text-align: center; border-bottom: 1px solid #f1c40f; }
+  h1 { color: #f1c40f; font-size: 1.8rem; }
+  .sub { color: #8b9dc3; font-size: 0.85rem; margin-top: 0.3rem; }
+  .container { max-width: 1200px; margin: 0 auto; padding: 1rem; }
+  .row { display: flex; flex-wrap: wrap; gap: 0.8rem; justify-content: center; margin: 0.8rem 0; }
+  input, textarea { background: #1e1e2f; border: 1px solid #444; color: #fff; padding: 0.5rem; font-size: 0.85rem; border-radius: 4px; }
+  .btn { background: #f1c40f; color: #000; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer; font-weight: bold; }
+  .btn:hover { background: #e0b800; }
+  .btn-danger { background: #c0392b; color: #fff; }
+  .btn-danger:hover { background: #e74c3c; }
+  .btn-sm { font-size: 0.75rem; padding: 0.3rem 0.6rem; }
+  .section { background: #12122a; border: 1px solid #2a2a4a; border-radius: 8px; padding: 1rem; margin: 1rem 0; }
+  .section h3 { color: #f1c40f; margin-bottom: 0.5rem; }
+  .analysis-box { background: #1e1e2f; padding: 1rem; border-radius: 4px; white-space: pre-wrap; font-size: 0.85rem; max-height: 500px; overflow-y: auto; margin-top: 0.5rem; }
+  .quick-btn { background: #2a2a4a; color: #d1d5db; border: 1px solid #444; padding: 0.3rem 0.5rem; margin: 0.15rem; border-radius: 3px; cursor: pointer; font-size: 0.72rem; }
+  .quick-btn:hover { background: #3a3a5a; }
+  label { font-size: 0.8rem; color: #8b9dc3; }
+  .gold { color: #f1c40f; }
+</style>
+</head>
+<body>
+<header>
+  <h1>💊 PharmaRiskRadar ▌</h1>
+  <p class="sub">AI‑Powered Risk Surveillance for Pharmaceutical Companies</p>
+  <p class="sub">📧 Technical Support: support@pharmariskradar.com</p>
+</header>
+
+<div class="container">
+  <!-- Ticker -->
+  <div class="row">
+    <label>Ticker:</label>
+    <input type="text" id="ticker" value="PFE" maxlength="8" style="width:80px; text-transform:uppercase;">
+    <button class="btn btn-danger btn-sm" onclick="resetDashboard()">🧹 Clear Dashboard</button>
+  </div>
+
+  <!-- Competitor Row -->
+  <div class="row" style="background:#12122a; padding:0.6rem; border-radius:8px;">
+    <label class="gold">🔍 Compare with:</label>
+    <input type="text" id="comp-1" placeholder="JNJ" style="width:75px;" maxlength="8">
+    <input type="text" id="comp-2" placeholder="MRK" style="width:75px;" maxlength="8">
+    <input type="text" id="comp-3" placeholder="LLY" style="width:75px;" maxlength="8">
+    <input type="text" id="comp-4" placeholder="ABBV" style="width:75px;" maxlength="8">
+    <input type="text" id="comp-5" placeholder="BMY" style="width:75px;" maxlength="8">
+    <button class="btn btn-sm" onclick="autoFillCompetitors()">🎯 Auto‑Fill</button>
+    <button class="btn btn-sm" onclick="clearCompetitors()">✕</button>
+  </div>
+
+  <!-- Agent Row -->
+  <div class="row" id="agent-row">
+    <input type="text" id="agent-name" placeholder="Name" style="width:120px;">
+    <input type="text" id="agent-position" placeholder="Position" style="width:120px;">
+    <input type="text" id="agent-prefix" placeholder="3-5 letters" maxlength="5" style="width:80px; text-transform:uppercase;">
+    <input type="text" id="agent-branch" placeholder="0000" maxlength="4" style="width:70px;">
+    <input type="text" id="agent-personal" placeholder="123456" maxlength="6" style="width:80px;">
+    <button class="btn btn-sm" onclick="setPrivateId()">Set ID</button>
+    <span id="private-id-display" style="color:#f1c40f; font-size:0.8rem;"></span>
+  </div>
+
+  <!-- Quick Analysis -->
+  <div class="section">
+    <h3>⚡ Quick Analysis <button class="btn btn-sm btn-danger" onclick="clearQuickAnalysis()">Clear</button></h3>
+    <div id="quick-buttons"></div>
+    <div id="quick-response" class="analysis-box"></div>
+  </div>
+
+  <!-- Cascade Torrent -->
+  <div class="section">
+    <h3>🌪️ Cascade Torrent (Open‑World AI) <button class="btn btn-sm btn-danger" onclick="clearSection('cascade')">Clear</button></h3>
+    <textarea id="cascade-input" rows="3" style="width:100%;" placeholder="Enter any risk question..."></textarea>
+    <button class="btn" onclick="askCascade()"> Run Cascade</button>
+    <div id="cascade-response" class="analysis-box"></div>
+    <div id="cascade-stealth"></div>
+  </div>
+
+  <!-- Bubble Search -->
+  <div class="section">
+    <h3>🫧 Bubble Search (Personalized AI) <button class="btn btn-sm btn-danger" onclick="clearSection('bubble')">Clear</button> <button class="btn btn-sm btn-danger" onclick="deleteHistory()">🗑️ Delete History</button></h3>
+    <textarea id="bubble-input" rows="3" style="width:100%;" placeholder="Ask anything – your previous searches will be used as context..."></textarea>
+    <button class="btn" onclick="askBubble()"> Bubble Search</button>
+    <div id="bubble-response" class="analysis-box"></div>
+    <div id="bubble-stealth"></div>
+  </div>
+
+  <!-- Strategic Homework -->
+  <div class="section" id="homework-section" style="display:none;">
+    <h3>📋 Strategic Homework (Private) <button class="btn btn-sm btn-danger" onclick="clearHomework()">Clear</button></h3>
+    <textarea id="homework-input" rows="2" style="width:100%;" placeholder="Optional focus area (e.g., regulatory, supply chain)"></textarea>
+    <button class="btn" onclick="generateHomework()">⚡ Generate Private Risk Assessment</button>
+    <span id="hedge-warning" style="color:#f1c40f; margin-left:1rem; font-size:0.8rem;"></span>
+    <button class="btn btn-sm" style="margin-left:0.5rem;" onclick="showHedgeSolutions()">📋 Show Stored Solutions</button>
+    <button class="btn btn-sm btn-danger" style="margin-left:0.5rem;" onclick="deleteOldestHedge()">🗑️ Delete 10 Oldest</button>
+    <div id="homework-response" class="analysis-box"></div>
+  </div>
+</div>
+
+<footer style="text-align:center; padding:1rem; color:#555; font-size:0.7rem;">
+  PharmaRiskRadar v5.0 • Real‑time AI Risk Intelligence<br>
+  © 2026 Estates Properties Allegiance, Corp. All rights reserved.
+</footer>
+
+<script src="hedge.js"></script>
+<script>
+let currentUserId = 0;
+const sectorButtons = [
+  ['📈 Regulatory','Regulatory risk for {ticker}'],
+  ['🚚 Supply Chain','Supply chain risk for {ticker}'],
+  ['⚖️ Patent Cliff','Patent cliff risk for {ticker}'],
+  ['💊 Clinical Hold','Clinical hold risk for {ticker}'],
+  ['🧪 Quality Issues','Quality issues for {ticker}'],
+  ['💰 Financial Health','Financial health risk for {ticker}'],
+  ['🌍 Geopolitical','Geopolitical risk for {ticker}'],
+  ['🤝 M&A Speculation','M&A speculation for {ticker}'],
+  ['💲 Drug Pricing','Drug pricing risk for {ticker}'],
+  ['⚠️ FDA Warnings','FDA warnings risk for {ticker}'],
+  ['🏭 Site Inspections','Site inspection risk for {ticker}'],
+  ['⏳ Pipeline Delays','Pipeline delay risk for {ticker}'],
+  ['🔄 Generic Threat','Generic threat risk for {ticker}'],
+  ['⚖️ Litigation','Litigation risk for {ticker}'],
+  ['🔐 Cybersecurity','Cybersecurity risk for {ticker}'],
+  ['📉 Exclusivity Loss','Exclusivity loss risk for {ticker}'],
+  ['🧪 API Sourcing','API sourcing risk for {ticker}'],
+  ['❄️ Cold Chain','Cold chain risk for {ticker}'],
+  ['🌿 Environmental','Environmental risk for {ticker}'],
+  ['👥 Talent Retention','Talent retention risk for {ticker}'],
+  ['💱 Currency','Currency risk for {ticker}'],
+  ['🔬 R&D Productivity','R&D productivity risk for {ticker}'],
+  ['🤝 Partner Collab','Partner collaboration risk for {ticker}'],
+  ['📊 Portfolio Conc.','Portfolio concentration risk for {ticker}'],
+  ['🦠 Pandemic Prep','Pandemic prep risk for {ticker}'],
+  ['🚫 Patient Access','Patient access risk for {ticker}'],
+  ['🕶️ Counterfeit','Counterfeit risk for {ticker}'],
+  ['🇪🇺🇺🇸 Reg. Divergence','Regulatory divergence risk for {ticker}'],
+  ['🔄 Drug Recall','Drug recall risk for {ticker}'],
+  ['📉 Market Sentiment','Market sentiment risk for {ticker}']
+];
+
+function defaultTicker(){ return document.getElementById('ticker').value.trim().toUpperCase()||'PFE'; }
+function showError(el,msg){ el.innerHTML='<span style="color:#e74c3c;">'+msg+'</span>'; }
+function getCompTickers(){
+  const c=[]; for(let i=1;i<=5;i++){const v=document.getElementById('comp-'+i).value.trim().toUpperCase();if(v)c.push(v);} return c;
+}
+function clearCompetitors(){ for(let i=1;i<=5;i++) document.getElementById('comp-'+i).value=''; }
+function autoFillCompetitors(){
+  const t=defaultTicker();
+  const m={north_america:['JNJ','MRK','LLY','ABBV','BMY'],europe:['NVS','AZN','SNY','GSK','BAYRY'],asia_pacific:['TAK','2412','9432','4502','4568'],latin_america:['BHC','TARO','ICPT'],me_africa:['TEVA','SVA']};
+  const na=['PFE','JNJ','ABBV','MRK','LLY','BMY','AMGN','GILD','BIIB','VRTX','REGN'],eu=['NVS','AZN','SNY','GSK','BAYRY'],ap=['TAK','2412','9432','4502','4568','CSL'],la=['BHC','TARO','ICPT'],me=['TEVA','SVA'];
+  let r='north_america';
+  if(eu.includes(t))r='europe';else if(ap.includes(t))r='asia_pacific';else if(la.includes(t))r='latin_america';else if(me.includes(t))r='me_africa';
+  const d=m[r];for(let i=0;i<5;i++)document.getElementById('comp-'+(i+1)).value=(d[i]&&d[i]!==t)?d[i]:'';
+}
+function aiFetch(url,body,el){
+  el.innerHTML='<em>Generating...</em>';
+  const x=new XMLHttpRequest();x.open('POST',url,true);x.setRequestHeader('Content-Type','application/json');x.timeout=180000;
+  x.onload=function(){
+    try{const d=JSON.parse(x.responseText);el.innerHTML=d.final||d.status||JSON.stringify(d);}
+    catch(e){el.innerHTML=x.responseText;}
+    loadStealthButtons();
+  };
+  x.onerror=function(){el.innerHTML='<span style="color:#e74c3c;">Network error.</span>';};
+  x.send(JSON.stringify(body));
+}
+function loadStealthButtons(){
+  const t=defaultTicker();
+  fetch('/api/stealth-buttons?ticker='+t+'&user_id='+(currentUserId||1)).then(r=>r.json()).then(b=>{
+    let h='<div style="margin-top:0.5rem;"><strong>🕵️ Stealth Alerts</strong><br>';
+    b.forEach(x=>h+='<button class="quick-btn" onclick="document.getElementById(\'cascade-input\').value=\''+x.query.replace(/'/g,"\\'")+'\';askCascade();">'+x.label+'</button> ');
+    h+='</div>';
+    const ce=document.getElementById('cascade-stealth');if(ce)ce.innerHTML=h;
+    const be=document.getElementById('bubble-stealth');if(be)be.innerHTML=h;
+  });
+}
+function setPrivateId(){
+  const n=document.getElementById('agent-name').value.trim(),p=document.getElementById('agent-position').value.trim(),
+        pr=document.getElementById('agent-prefix').value.trim().toUpperCase(),b=document.getElementById('agent-branch').value.trim(),
+        pe=document.getElementById('agent-personal').value.trim();
+  if(!n||!p||!pr||!b||!pe){alert('All agent fields are required.');return;}
+  currentUserId = pr+b+pe;
+  document.getElementById('private-id-display').innerText='ID: '+currentUserId;
+  document.getElementById('homework-section').style.display='block';
+}
+function askCascade(){
+  const q=document.getElementById('cascade-input').value.trim();if(!q)return;
+  const t=defaultTicker();
+  aiFetch('/api/cascade',{question:q,ticker:t,comp_tickers:getCompTickers()},document.getElementById('cascade-response'));
+}
+function askBubble(){
+  if(!currentUserId){alert('Set your Agent ID first.');return;}
+  const q=document.getElementById('bubble-input').value.trim();if(!q)return;
+  aiFetch('/api/bubble',{question:q,ticker:defaultTicker(),user_id:String(currentUserId)},document.getElementById('bubble-response'));
+}
+function generateHomework(){
+  if(!currentUserId){alert('Set your Agent ID first.');return;}
+  const f=document.getElementById('homework-input').value.trim()||'general';
+  aiFetch('/api/homework',{ticker:defaultTicker(),focus:f},document.getElementById('homework-response'));
+}
+function clearQuickAnalysis(){ document.getElementById('quick-response').innerHTML=''; }
+function clearSection(s){ document.getElementById(s+'-response').innerHTML=''; document.getElementById(s+'-stealth').innerHTML=''; }
+function clearHomework(){ document.getElementById('homework-response').innerHTML=''; }
+function resetDashboard(){ clearQuickAnalysis();clearSection('cascade');clearSection('bubble');clearHomework();clearCompetitors(); }
+function deleteHistory(){
+  if(!confirm('Delete all bubble search history?'))return;
+  fetch('/api/delete-history',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user_id:String(currentUserId||1)})});
+}
+// Quick Analysis buttons
+(function(){
+  const h=sectorButtons.map(b=>'<button class="quick-btn" onclick="aiFetch(\'/api/cascade\',{question:\''+b[1].replace('{ticker}',defaultTicker()).replace(/'/g,"\\'")+'\',ticker:defaultTicker(),comp_tickers:getCompTickers()},document.getElementById(\'quick-response\'))">'+b[0]+'</button>').join('');
+  document.getElementById('quick-buttons').innerHTML=h;
+})();
+// Enter key support
+document.getElementById('cascade-input').addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();askCascade();}});
+document.getElementById('bubble-input').addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();askBubble();}});
+document.getElementById('homework-input').addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();generateHomework();}});
+</script>
+</body>
+</html>
