@@ -1,10 +1,12 @@
 <?php
+require __DIR__ . '/load_env.php';
+
 error_reporting(0);
 header_remove('X-Powered-By');
 
 // ─── API Keys ───
-define('DS_KEY', $_ENV['DS_KEY'] ?? getenv('DS_KEY') ?: '');
-define('SERPER_KEY', $_ENV['SERPER_KEY'] ?? getenv('SERPER_KEY') ?: '');
+define('DS_KEY', \['DS_KEY'] ?? getenv('DS_KEY') ?: '');
+define('SERPER_KEY', \['SERPER_KEY'] ?? getenv('SERPER_KEY') ?: '');
 
 // ─── SQLite Database ───
 function init_db() {
@@ -133,7 +135,7 @@ function full_analysis($ticker, $question) {
     for ($k=0; $k<min(5,count($actions)); $k++) $advantage.=($k+1).'. '.$actions[$k]."\n";
     $advQ = "Based on the analysis of $company ($ticker) regarding: $question, generate exactly 10 strategic business advantages that the company (or an investor) could leverage to stay ahead of competitors. Format as a numbered list with concise, actionable advantages. Be forward-looking.";
     $advAnswer = deepseek([['role'=>'system','content'=>'You are a top-tier pharmaceutical strategist. Provide exactly 10 forward-looking strategic advantages.'],['role'=>'user','content'=>$advQ]]);
-    if (empty($advAnswer)) $advAnswer = "1. Accelerate digital transformation in clinical trials\n2. Expand into high-growth therapeutic areas\n3. Strengthen pipeline through strategic M&A\n4. Leverage AI for drug discovery\n5. Optimise global supply chain\n6. Invest in personalised medicine\n7. Enhance patient access programmes\n8. Build strategic partnerships with biotech\n9. Focus on real-world evidence generation\n10. Implement dynamic pricing strategies";
+    if (empty($advAnswer)) $advAnswer = "1. **Accelerate digital transformation in clinical trials**: Use real‑world data and AI‑driven patient recruitment to cut trial timelines by 30–40% and reduce costs.\n2. **Expand into high‑growth therapeutic areas**: Target oncology, immunology, and rare diseases where pricing power and unmet need are highest.\n3. **Strengthen pipeline through strategic M&A**: Acquire Phase 2/3 assets from smaller biotechs to fill near‑term revenue gaps.\n4. **Leverage AI for drug discovery**: Deploy generative AI to identify novel targets and optimise lead compounds, compressing R&D cycles.\n5. **Optimise global supply chain**: Regionalise API sourcing and implement digital twins to anticipate disruptions and reduce inventory costs.\n6. **Invest in personalised medicine**: Develop biomarker‑driven therapies that command premium pricing and improve patient outcomes.\n7. **Enhance patient access programmes**: Offer value‑based contracts and patient assistance to expand market share while meeting payer demands.\n8. **Build strategic partnerships with biotech**: Co‑develop next‑generation platforms (mRNA, gene editing) to share risk and accelerate innovation.\n9. **Focus on real‑world evidence generation**: Use RWE to support label expansions and reimbursement negotiations, extending product lifecycles.\n10. **Implement dynamic pricing strategies**: Use AI‑driven pricing models that adapt to competitor moves and market conditions in real time.";
     return "### Analysis for $ticker\n".$analysis."\n".$advantage."\n\n### 🚀 10 AI Strategic Business Advantages\n".$advAnswer;
 }
 
@@ -180,7 +182,7 @@ if ($uri === '/api/cascade' || $uri === '/api/persona' || $uri === '/api/deepthi
     $handles=[]; $mh=curl_multi_init(); $company_analyses=[];
     foreach($all_tickers as $t) {
         $pool=get_pool($t); $company=$pool['company']??strtoupper($t); $risks=$pool['risks']??[];
-        $ctx = "You are a top-tier pharmaceutical competitive intelligence analyst. Company: $company ($t).\nProvide a CONDENSED analysis in exactly this format:\n### Top 5 Risks for $company\n1. **Risk Name**: one-line explanation\n...\n\n### 5 Strategic Actions\n1. **Action**: one-line recommendation\n...\n\nIMPORTANT: Provide exactly 5 strategic actions. Do NOT invent filler.";
+        $ctx = "You are a top-tier pharmaceutical competitive intelligence analyst. Company: $company ($t).\nProvide a sharp, concise analysis. For each risk and action, give one brief sentence that explains WHY it matters. Format exactly:\n### Top 5 Risks for $company\n1. **Risk Title**: One-sentence explanation of the specific risk and its impact.\n... (5 risks)\n### 5 Strategic Actions\n1. **Action Title**: One-sentence description of the concrete action and its expected outcome.\n... (5 actions)\nKeep each line under 180 characters. Be direct, insightful, and actionable.";
         $msgs = [['role'=>'system','content'=>$ctx],['role'=>'user','content'=>$question]];
         $body = json_encode(['model'=>'deepseek-chat','messages'=>$msgs,'max_tokens'=>2000,'repetition_penalty'=>1.2]);
         $ch = curl_init('https://api.deepseek.com/v1/chat/completions');
