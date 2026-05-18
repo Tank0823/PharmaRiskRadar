@@ -1,12 +1,10 @@
 <?php
-require __DIR__ . '/load_env.php';
-
 error_reporting(0);
 header_remove('X-Powered-By');
 
 // ─── API Keys ───
-define('DS_KEY', \['DS_KEY'] ?? getenv('DS_KEY') ?: '');
-define('SERPER_KEY', \['SERPER_KEY'] ?? getenv('SERPER_KEY') ?: '');
+define('DS_KEY', $_ENV['DS_KEY'] ?? getenv('DS_KEY') ?: '');
+define('SERPER_KEY', $_ENV['SERPER_KEY'] ?? getenv('SERPER_KEY') ?: '');
 
 // ─── SQLite Database ───
 function init_db() {
