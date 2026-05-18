@@ -5,8 +5,8 @@ error_reporting(0);
 header_remove('X-Powered-By');
 
 // ─── API Keys ───
-define('DS_KEY', \['DS_KEY'] ?? getenv('DS_KEY') ?: '');
-define('SERPER_KEY', \['SERPER_KEY'] ?? getenv('SERPER_KEY') ?: '');
+define('DS_KEY', 'sk-659628ee944347dda384930bb5c502df');
+define('SERPER_KEY', '2ebae7c2ea8e486a14b18931dcf6449130e1f1f0');
 
 // ─── SQLite Database ───
 function init_db() {
