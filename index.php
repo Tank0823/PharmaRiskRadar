@@ -340,6 +340,18 @@ if ($uri === '/api/hedge-delete') {
     echo json_encode(['status'=>'ok','message'=>'10 oldest solutions deleted']); exit;
 }
 
+
+// ─── Self‑test AI connection ───
+if ($uri === '/api/test-ai') {
+    header('Content-Type: application/json');
+    $testMessages = [['role'=>'user','content'=>'In one sentence, explain why AI is useful for drug discovery.']];
+    $result = deepseek($testMessages, 0, false); // use chat model for speed
+    echo json_encode([
+        'status' => $result ? 'ok' : 'fallback',
+        'response' => $result ?: 'DeepSeek call failed – check DS_KEY'
+    ]);
+    exit;
+}
 // Serve dashboard
 header("Content-Security-Policy: default-src * 'unsafe-inline' 'unsafe-eval' data:; script-src * 'unsafe-inline' 'unsafe-eval'; style-src * 'unsafe-inline';");
 header('Content-Type: text/html');
