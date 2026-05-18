@@ -23,8 +23,23 @@ function circuit_breaker_record_failure() {}
 
 // ─── HTTP POST Helper ───
 function http_post($url, $headers, $body, $timeout=20) {
-    $ctx = stream_context_create(['http'=>['method'=>'POST','header'=>$headers,'content'=>$body,'timeout'=>$timeout,'ignore_errors'=>true]]);
-    return @file_get_contents($url, false, $ctx);
+    $ch = curl_init($url);
+    curl_setopt_array($ch, [
+        CURLOPT_POST => true,
+        CURLOPT_HTTPHEADER => explode("\r\n", $headers),
+        CURLOPT_POSTFIELDS => $body,
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_TIMEOUT => $timeout,
+        CURLOPT_SSL_VERIFYPEER => false
+    ]);
+    $resp = curl_exec($ch);
+    if (curl_errno($ch)) {
+        error_log("http_post error: " . curl_error($ch));
+        curl_close($ch);
+        return false;
+    }
+    curl_close($ch);
+    return $resp;
 }
 
 // ─── DeepSeek Call ───
@@ -37,6 +52,10 @@ function deepseek($messages, $retries=1) {
             $d = json_decode($resp, true);
             $content = $d['choices'][0]['message']['content'] ?? '';
             if ($content) return $content;
+            // Log the API error
+            error_log("DeepSeek API error: " . substr($resp, 0, 500));
+        } else {
+            error_log("DeepSeek API call failed (network/key)");
         }
         if ($i<$retries) sleep(1);
     }
@@ -44,11 +63,22 @@ function deepseek($messages, $retries=1) {
 }
 
 // ─── Web Search (Serper) ───
-function web_search($query, $limit=3) {
+function web_search($query, $limit=5) {
     if (!SERPER_KEY) return [];
-    $resp = http_post('https://google.serper.dev/search',
-        "Content-Type: application/json\r\nX-API-KEY: ".SERPER_KEY."\r\n",
-        json_encode(['q'=>$query,'num'=>$limit]));
+    $ch = curl_init('https://google.serper.dev/search');
+    curl_setopt_array($ch, [
+        CURLOPT_POST => true,
+        CURLOPT_HTTPHEADER => [
+            "Content-Type: application/json",
+            "X-API-KEY: " . SERPER_KEY
+        ],
+        CURLOPT_POSTFIELDS => json_encode(['q'=>$query,'num'=>$limit]),
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_TIMEOUT => 15,
+        CURLOPT_SSL_VERIFYPEER => false
+    ]);
+    $resp = curl_exec($ch);
+    curl_close($ch);
     if (!$resp) return [];
     $d = json_decode($resp, true);
     return $d['organic'] ?? [];
